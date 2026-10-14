@@ -1,5 +1,36 @@
 # Procedural Jellyfish
 
+## Luke Kwon
+
+### Video
+
+https://github.com/user-attachments/assets/d472d77a-d333-4893-a75a-0c9e56a5a350
+
+### Project Description
+
+An animated jellyfish created in Houdini using procedural modeling, VEX, and Vellum simulation.
+
+#### Bell
+
+A bent profile is revolved and extruded to form the bell. Animated curvature and vertical movement create its pulsing swimming motion.
+
+#### Oral Arms
+
+Grids are ruffled with VEX, twisted, and duplicated beneath the bell. Vellum cloth simulation lets the arms flow while remaining attached to the animated body.
+
+#### Veins
+
+Find Shortest Path generates branching curves across the bell. These are smoothed, swept into tubes, and deformed to follow its animation.
+
+#### Organs
+
+A swept curve is duplicated into four radial organs inside the bell. Point Deform keeps them moving with the body.
+
+#### Tentacles
+
+Lines copied along the bell’s rim are simulated with Vellum hair and pinned at their roots. A tapered sweep gives the strands thickness.
+
+
 ## Project Overview
 In this homework, you'll create a procedural jellyfish using Houdini. This will give you a chance to dig into procedural modeling, as well as some simulation. Here is a breakdown of the different jellyfish parts you'll be putting together:
 

@@ -1,0 +1,6 @@
+*.hipnc
+*.hip
+backup/
+geo/
+flipbook/
+.DS_Store

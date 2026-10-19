@@ -1,0 +1,45 @@
+# ==========================================
+# Houdini Specific Files
+# ==========================================
+
+# Digital Assets backup directories
+*/backup/*
+**/backup/
+
+# Geometry, Simulation, and Texture Caches
+*.sim
+*.bgeo
+*.bgeo.*
+*.sc
+*.abc
+*.vdb
+*.fbx
+*.obj
+*.exr
+*.rat
+*.tif
+*.tiff
+*.jpg
+*.jpeg
+
+# Render Files and Intermediate Formats
+*.ifd
+*.ass
+*.usd
+*.usda
+*.usdc
+*.usdnc
+
+# Performance logs and crash dumps
+*.log
+houdini_crash.*
+crash.*.hip
+
+# ==========================================
+# Operating System & IDE (Optional but Recommended)
+# ==========================================
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.code-workspace

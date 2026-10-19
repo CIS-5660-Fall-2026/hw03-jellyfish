@@ -1,0 +1,5 @@
+# Houdini files go to Canvas, not GitHub
+*.hip
+*.hipnc
+backup/
+.DS_Store

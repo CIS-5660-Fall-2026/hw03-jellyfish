@@ -1,85 +1,81 @@
-# Procedural Jellyfish
+# HW 3 - Procedural Jellyfish
 
-## Project Overview
-In this homework, you'll create a procedural jellyfish using Houdini. This will give you a chance to dig into procedural modeling, as well as some simulation. Here is a breakdown of the different jellyfish parts you'll be putting together:
+![jellyfish](Screenshots/jellyfish.gif)
 
-<img height="500" alt="Jellyfish Parts" src="/assets/JellyfishParts.png">
+Full clip (viewport flipbook, 144 frames at 24 fps): [Screenshots/jellyfish.mp4](Screenshots/jellyfish.mp4)
 
----
+Scene is `jellyfish.hipnc` (Houdini 22.0.466 Apprentice, hence the watermark), submitted on Canvas. Everything is inside `/obj/jellyfish`, one column of nodes per part, with the sliders on a `controls` null at the front. No caches, the tentacle sim just runs from frame 1.
 
-Here are some SideFX docs that you might find helpful:
+| ![](Screenshots/full.png) | ![](Screenshots/full_side.png) |
+|:--:|:--:|
+| ![](Screenshots/under.png) | ![](Screenshots/network.png) |
 
-[Geometry Nodes Documentation](https://www.sidefx.com/docs/houdini/nodes/sop/index.html)
+## Bell
 
-[VEX Documentation](https://www.sidefx.com/docs/houdini/vex/functions/index.html)
+A `line` bent into a profile curve in a wrangle, then `revolve`. The profile is `r = R sin(a)`, `y = RH cos(a)` with `a` going a bit past 90° so the rim curls under. The wrangle also writes `@t` (0 at the apex, 1 at the rim), which drives pretty much everything else: the pulse, the scallops, where the veins stop, where the tentacles grow.
 
-## Bell and Arms
-Follow along to the videos to create the bell and arms of the jellyfish. Although I provide the values I used to create my jellyfish, you're heavily encouraged to play around and customize the setup to your liking! 
+A second wrangle adds a scalloped rim (`cos(8 theta)` weighted by `t^5`) and some puckering noise, then `polyextrude` gives it thickness. `@Alpha = 0.45` makes it translucent in the viewport.
 
-[Jellyfish Bell Setup Video](https://www.youtube.com/watch?v=J3X8BB0yNRE)
+| ![](Screenshots/bell.png) | ![](Screenshots/bell_wire.png) |
+|:--:|:--:|
 
-[Jellyfish Arms Setup Video](https://www.youtube.com/watch?v=A_oNXqx8XH4)
+**Pulse.** One wrangle on `@Time`. The phase is `frac(Time / period - lag * t)`, so the contraction starts at the apex and travels to the rim. The curve is asymmetric (fast `smooth` in, slow out), it scales x/z by `1 - amount * c * t^1.5`, adds a little noise wobble, and the whole bell bobs up with a cosine offset from the contraction.
 
 ## Veins
-In order to create the veins for the jellyfish, you'll make use of the "Find Shortest Path" node. The Dungeon Corridor example in the Houdini Playground is a helpful reference for using this node. Here is some rough guidance for how to approach making the veins:
 
-Remesh the jellyfish into triangles (otherwise you'll end up with very square looking veins)
+The shortest path recipe from the writeup, on the static bell:
 
-<img width="300" alt="Remesh" src="/assets/Remesh.png">
+- `remesh` to triangles (0.04)
+- wrangle: `starts` = random points on a small ring around the apex, `ends` = random points with `0.86 < t < 0.94`, plus a noisy `@cost`
+- `findshortestpath`, "From any start to each end", with `cost` as the point cost. The noise is what makes them wander and branch; overlapping routes near the top give the tree for free
+- `fuse`, `resample`, `fuse`, `smooth`
+- `pscale` tapering from apex to rim, `sweep` as a tube
+- `pointdeform` from the static bell to the pulsing one
 
-Use the shortest path node to generate veins ([here](https://www.sidefx.com/docs/houdini/nodes/sop/findshortestpath.html) are the docs for the Find Shortest Path node)
+![veins](Screenshots/veins.png)
 
-<img width="300" alt="ShortestPath" src="/assets/ShortestPath.png">
+## Arms
 
-Smooth out the veins for a more organic look. You might find yourself needing the "resample" and "fuse" nodes in addition to the "smooth" node (and remember, the [docs](https://www.sidefx.com/docs/houdini/nodes/sop/index.html) are a great resource if you're confused about what a node does or how to use it)
+Four `line`s copied with `copyxform`, shaped in a wrangle (angle from prim number, flare outward, slow noise sway on `@Time`, `pscale` narrowing to the tip), swept as a ribbon with 200° of twist. The frills are a wrangle after the sweep: `sin(55u)` along the normal, scaled by how far the point is from the ribbon's centre line (`|side|^1.5`), so only the edges ruffle. One `subdivide` after that. They hang off a short noisy `tube` as the manubrium.
 
-<img width="300" alt="ResampleFuseSmooth" src="/assets/ResampleFuseSmooth.png">
+The arms, stalk and organs are point deformed to the *top half* of the bell only (`blast @t>0.5` on both rest and animated). Deforming to the whole bell captured rim points and squeezed them every pulse.
 
-Use a "sweep" node to give the veins width
-
-<img width="300" alt="Sweep" src="/assets/Sweep.png">
-
-Lastly, stick the veins to the bell's animation using the "Point Deform" node that we used on the arms. The final result should look something like this:
-
-<img width="300" alt="VeinsGif" src="/assets/VeinsGif.gif">
+![arms](Screenshots/arms.png)
 
 ## Organs
-Next, create organs for your jellyfish. You can approach this any way you'd like! The final result should look something like this:
 
-<img width="300" alt="Organs" src="/assets/Organs.png">
+Moon jelly style: four horseshoes. A `circle` open arc (-105° to 105°) offset from centre, `copyxform` x4 at 90°, a wrangle to sit them just under the dome (same `cos(asin(r/R))` as the bell profile) and make them lumpy, `sweep` with round caps, `subdivide`.
 
+![organs](Screenshots/organs.png)
 
 ## Tentacles
-When you're working on Houdini projects in the future, you usually won't be able to find tutorials for exactly what you're trying to do. Instead, you'll need to be able to take semi-related tutorials and apply the relevant techniques to your projects. This exercise is designed to give you some experience with that.
 
-Your goal is to create tentacles that look like this for your jellyfish:
+What I took from the hair tutorial: grow curves from points, Vellum Constraints in Hair mode, pin the roots, solve. The jellyfish part is making the roots follow the animated rim:
 
-<img width="300" alt="TentaclesGif" src="/assets/TentaclesGif.gif">
+1. `scatter` 170 points on the static bell with density `smooth(0.9, 1, t)`
+2. wrangle for `N` (down, slight outward tilt), `up`, random `pscale` for length
+3. `copytopoints` a 16 point line. The template line has `@root = 1` on its first point, which becomes the `roots` group. A bit of noise per strand so they don't rest as straight rods
+4. `pointdeform` the strands to the pulsing bell, so the solver's input is already animated
+5. `vellumconstraints` Hair, Pin Points `roots`, Match Animation on, bend stiffness 2e-5
+6. `vellumsolver`, gravity -0.5, built-in wind at zero speed with drag 1.5 as water drag
+7. `attribdelete` the solver attributes, `resample` as subd curves, `sweep` thin tube
 
-[This video](https://www.youtube.com/watch?v=LN4XXaHQkmU) demonstrates how to simulate hairs to create renders like this:
+![tentacles](Screenshots/tentacles.png)
 
-<img width="300" alt="HairRender3" src="/assets/HairRender1.png">
-<img width="300" alt="HairRender2" src="/assets/HairRender2.png">
-<img width="300" alt="HairRender1" src="/assets/HairRender3.png">
+## Controls
 
-Your task is to watch the video and extract the applicable information to make the tentacles! (also, just a heads up, the second half of the tutorial is all irrelevant rendering stuff in C4D, so you only need to watch the first 12 minutes or so).
+All on the `controls` null, referenced with `ch("../controls/...")`.
 
-## Houdini FAQ
-[File Cache Node](https://www.youtube.com/watch?v=00s9YWDWFs0) - How do I use the File Cache node? Where does it save and how do versions work?
+![controls](Screenshots/controls.png)
 
-[Simulation Caching](https://www.youtube.com/watch?v=jwIuzB9FkX0) - Why is my timeline turning blue/orange? Why isn't my simulation updating even though I made changes?
+## Extras
 
-## (Optional) Extra Credit
-- Add another part to your jellyfish. This can be something real (ex: crown jellyfish and lions mane jellyfish have some pretty crazy features that might be fun to recreate) or whatever zany alien jellyfish addition you can imagine!
-- Refine one of the existing parts (ex: adding scalloped edges and dents/puckering to the bell of the jellyfish)
-- Render your jellyfish (a good place to start is watching a few episodes from the playlist (https://youtube.com/playlist?list=PLopImPTpJclS7Ug5q5lsROrNDzZsI1jVE&si=rxfb89YFo46ytoYI), this playlist goes over the newer Karma Renderer and Solaris network in good detail. You can pick the episodes that you need.
-- Add some flair to your scene by adding a background (ex: coral or rock formations)
-## Submission
-- Fork this repository
-- Update your README
-    - Please delete the assignment README text
-    - A description of your project
-    - A video of your animated jellyfish ([video](https://www.youtube.com/watch?v=gXtDd1lPDmc) of how to save a video of your viewport out of Houdini)
-- Create a pull request to this repository
-- Submit your Houdini file to Canvas along with a link to your pull request
-(Don't upload your houdini files to github -- it's a pain to upload big/binary files. Just canvas is fine!)
+- Scalloped, puckered rim and real thickness on the bell
+- The manubrium stalk the arms hang from
+- Three distant lights + ambient in the scene, flipbook with high quality lighting, gradient background composited with ffmpeg
+
+## Things that bit me
+
+- `copyxform`'s copy number attribute was 0 for every copy, so I use `@primnum`
+- The viewport draws a UV checker on anything with uvs and no material. Turned Compute UVs off on the revolve
+- Sweep: `pscale` needs "Transform Using Curve Point Attributes", the up vector has to be a primitive attribute, and the vellum solver leaves a tiny `pscale` behind that shrank my tentacles to hairlines

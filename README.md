@@ -1,85 +1,43 @@
 # Procedural Jellyfish
 
-## Project Overview
-In this homework, you'll create a procedural jellyfish using Houdini. This will give you a chance to dig into procedural modeling, as well as some simulation. Here is a breakdown of the different jellyfish parts you'll be putting together:
+[![Animated jellyfish preview](assets/jellyfish-preview.gif)](jellyfish.mp4)
 
-<img height="500" alt="Jellyfish Parts" src="/assets/JellyfishParts.png">
+## Bell
 
----
+A Line defines the side profile. Two Bend nodes shape and animate it, then Revolve turns the profile into a bell. A Wrangle and Mountain add folds and surface variation, and PolyExtrude gives the shell thickness.
 
-Here are some SideFX docs that you might find helpful:
-
-[Geometry Nodes Documentation](https://www.sidefx.com/docs/houdini/nodes/sop/index.html)
-
-[VEX Documentation](https://www.sidefx.com/docs/houdini/vex/functions/index.html)
-
-## Bell and Arms
-Follow along to the videos to create the bell and arms of the jellyfish. Although I provide the values I used to create my jellyfish, you're heavily encouraged to play around and customize the setup to your liking! 
-
-[Jellyfish Bell Setup Video](https://www.youtube.com/watch?v=J3X8BB0yNRE)
-
-[Jellyfish Arms Setup Video](https://www.youtube.com/watch?v=A_oNXqx8XH4)
+![Bell geometry with a scalloped edge](bell.png)
 
 ## Veins
-In order to create the veins for the jellyfish, you'll make use of the "Find Shortest Path" node. The Dungeon Corridor example in the Houdini Playground is a helpful reference for using this node. Here is some rough guidance for how to approach making the veins:
 
-Remesh the jellyfish into triangles (otherwise you'll end up with very square looking veins)
+TimeShift freezes the bell at frame 1. Remesh and Find Shortest Path create vein curves on this fixed surface. I did the animation follow differently because point deform looks good when I changed the bell's transform only but If I change the bends it doesn't follow that well. So I alternatively uses Ray to record where each curve point lands on the frozen bell (`hitprim` and `hitprimuv`). Attribute Interpolate uses those locations on the current animated bell, so the veins follow its Bend deformation. Sweep gives the curves width.
 
-<img width="300" alt="Remesh" src="/assets/Remesh.png">
+![Veins on the bell](vein.png)
 
-Use the shortest path node to generate veins ([here](https://www.sidefx.com/docs/houdini/nodes/sop/findshortestpath.html) are the docs for the Find Shortest Path node)
+## Arms
 
-<img width="300" alt="ShortestPath" src="/assets/ShortestPath.png">
+A Grid is displaced with sine waves and noise to make ruffles, then twisted, remeshed, and copied around the center. Point Deform makes the arms follow the bell. Vellum cloth and pin constraints add secondary motion, while PolyExtrude gives the simulated surfaces thickness.
 
-Smooth out the veins for a more organic look. You might find yourself needing the "resample" and "fuse" nodes in addition to the "smooth" node (and remember, the [docs](https://www.sidefx.com/docs/houdini/nodes/sop/index.html) are a great resource if you're confused about what a node does or how to use it)
+![Ruffled arms](tentacles.png)
 
-<img width="300" alt="ResampleFuseSmooth" src="/assets/ResampleFuseSmooth.png">
+## Organ
 
-Use a "sweep" node to give the veins width
+A resampled Line is bent into a U-shaped curve. Vellum hair and pin constraints animate it; PolyWire turns the curve into a tube. Wrangles taper its ends and add small waves, then Copy and Point Deform place four organs under the moving bell.
 
-<img width="300" alt="Sweep" src="/assets/Sweep.png">
+![U-shaped organs](organ.png)
 
-Lastly, stick the veins to the bell's animation using the "Point Deform" node that we used on the arms. The final result should look something like this:
+## Hair
 
-<img width="300" alt="VeinsGif" src="/assets/VeinsGif.gif">
+A Line is copied to sampled points along the bell's lower rim. Vellum hair constraints let the strands sway while pin constraints hold their roots to the bell. PolyWire gives the simulated strands visible thickness.
 
-## Organs
-Next, create organs for your jellyfish. You can approach this any way you'd like! The final result should look something like this:
+![Hair strands hanging from the bell](arms.png)
 
-<img width="300" alt="Organs" src="/assets/Organs.png">
+## Extra Credit: Scalloped Bell Edges and Puckering
 
+The Bell's Point Wrangle reads the rim and cap heights from the profile line connected to its second input. For each point, it uses the angle around the vertical axis to create a noisy sine wave that pushes the surface inward and outward. A height-based weight fades this displacement toward the top, so the scallops and puckering are strongest near the lower edge.
 
-## Tentacles
-When you're working on Houdini projects in the future, you usually won't be able to find tutorials for exactly what you're trying to do. Instead, you'll need to be able to take semi-related tutorials and apply the relevant techniques to your projects. This exercise is designed to give you some experience with that.
+I also animated the organ just to make it looks bouncy and cute (I guess).
 
-Your goal is to create tentacles that look like this for your jellyfish:
+## Node Network Screenshot
 
-<img width="300" alt="TentaclesGif" src="/assets/TentaclesGif.gif">
-
-[This video](https://www.youtube.com/watch?v=LN4XXaHQkmU) demonstrates how to simulate hairs to create renders like this:
-
-<img width="300" alt="HairRender3" src="/assets/HairRender1.png">
-<img width="300" alt="HairRender2" src="/assets/HairRender2.png">
-<img width="300" alt="HairRender1" src="/assets/HairRender3.png">
-
-Your task is to watch the video and extract the applicable information to make the tentacles! (also, just a heads up, the second half of the tutorial is all irrelevant rendering stuff in C4D, so you only need to watch the first 12 minutes or so).
-
-## Houdini FAQ
-[File Cache Node](https://www.youtube.com/watch?v=00s9YWDWFs0) - How do I use the File Cache node? Where does it save and how do versions work?
-
-[Simulation Caching](https://www.youtube.com/watch?v=jwIuzB9FkX0) - Why is my timeline turning blue/orange? Why isn't my simulation updating even though I made changes?
-
-## (Optional) Extra Credit
-- Add another part to your jellyfish. This can be something real (ex: crown jellyfish and lions mane jellyfish have some pretty crazy features that might be fun to recreate) or whatever zany alien jellyfish addition you can imagine!
-- Refine one of the existing parts (ex: adding scalloped edges and dents/puckering to the bell of the jellyfish)
-- Render your jellyfish (a good place to start is watching a few episodes from the playlist (https://youtube.com/playlist?list=PLopImPTpJclS7Ug5q5lsROrNDzZsI1jVE&si=rxfb89YFo46ytoYI), this playlist goes over the newer Karma Renderer and Solaris network in good detail. You can pick the episodes that you need.
-- Add some flair to your scene by adding a background (ex: coral or rock formations)
-## Submission
-- Fork this repository
-- Update your README
-    - Please delete the assignment README text
-    - A description of your project
-    - A video of your animated jellyfish ([video](https://www.youtube.com/watch?v=gXtDd1lPDmc) of how to save a video of your viewport out of Houdini)
-- Create a pull request to this repository
-- Submit your Houdini file to Canvas along with a link to your pull request
-(Don't upload your houdini files to github -- it's a pain to upload big/binary files. Just canvas is fine!)
+![Houdini node network screenshot](nodes.png)

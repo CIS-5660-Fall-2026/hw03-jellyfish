@@ -1,5 +1,9 @@
 # Procedural Jellyfish
-Assignment instructions can be found [here](https://github.com/CIS-5660-Fall-2026/hw03-jellyfish/blob/main/README.md).
+The assignment instructions can be found [here](https://github.com/CIS-5660-Fall-2026/hw03-jellyfish/blob/main/README.md).
+
+![A jellyfish bobbing up and down](assets/jellyfish.gif)
+The video version of the demo can be found [here](https://youtu.be/sFQvLxZfVAs)
+
 ### Implementation Details
 The **bell** and **arms** were made by following their respective tutorial videos with parameters largely kept the same ([bell](https://youtu.be/J3X8BB0yNRE); [arms](https://youtu.be/A_oNXqx8XH4)).
 

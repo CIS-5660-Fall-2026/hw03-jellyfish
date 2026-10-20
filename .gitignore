@@ -1,0 +1,12 @@
+# Houdini scene files are submitted on Canvas, not GitHub
+*.hip
+*.hipnc
+*.hiplc
+backup/
+
+# Simulation / geometry caches and rendered frames
+geo/
+flipbook/
+
+# Helper scripts (not part of the submission)
+scripts/

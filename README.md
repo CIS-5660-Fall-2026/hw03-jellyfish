@@ -1,5 +1,33 @@
 # Procedural Jellyfish
 
+## Result
+<p align="center">
+    <img width="800" src="jellyfish3.gif">
+    <em>Animated Jellyfish</em>
+</p>
+<p align="center">
+    <img width="800" src="jelly_color.png">
+    <em>Jellyfish Render</em>
+</p>
+
+### Components
+<p align="center">
+    <img width="500" src="jelly.png">
+</p>
+
+**Bell:** I created a line and bent it to what I wanted the arc of the jellyfish to be. Then I revolved the line to get the dome shape and added some noise to get the shape of the bell. The animation slightly warps the bell as it moves down then back up. The rest of the components' animations follows the motion created by the bell.
+
+**Arms:** Each individual arm is a grid that is twisted and extruded. A cloth sim is added to the arms so that they float around as time moves forward.
+
+**Veins:** I generated points toward the top and bottom of the bell, and then used a shortest path node to create vein-like lines between the points.
+
+**Organs:** Each organ is a circle created to be an arc. There is some noise to add bumps to make the shape look more organic.
+
+**Tentacles:** The lines are created from points in a torus shape. A hair sim is used to move the lines around as if they are floating around in water.
+
+
+
+
 ## Project Overview
 In this homework, you'll create a procedural jellyfish using Houdini. This will give you a chance to dig into procedural modeling, as well as some simulation. Here is a breakdown of the different jellyfish parts you'll be putting together:
 

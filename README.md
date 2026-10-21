@@ -1,3 +1,25 @@
+# Bryan Chung - HW 3: Jellyfish
+
+https://github.com/user-attachments/assets/f2e0a82b-c9f3-4c4d-b6ee-4fa0ffd0f185
+
+### Veins
+Made by using groups with bounding regions to isolate start/end point groups, then the Find Shortest Path node to connect the points.
+
+<img width="500" height="501" alt="veins" src="https://github.com/user-attachments/assets/28a49e25-0286-476f-aa93-72c4c99fb88e" />
+
+### Organs
+Made by revolving and bend line geometry, filling the caps, then applying surface noise to deform the geometry.
+
+<img width="500" height="501" alt="organs" src="https://github.com/user-attachments/assets/a7a9a02a-ba30-4b3c-aeeb-96de9cd8f755" />
+
+### Tentacles
+Made by isolating pinned points using a group (similar to points for veins) then following the hair simulation tutorial.
+
+<img width="500" height="501" alt="tentacles" src="https://github.com/user-attachments/assets/c4c0dcaf-d109-4936-91a9-657633f5b6a8" />
+
+
+---
+
 # Procedural Jellyfish
 
 ## Project Overview

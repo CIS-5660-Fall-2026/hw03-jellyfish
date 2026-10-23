@@ -1,0 +1,11 @@
+# Houdini auto-backups
+backup/
+
+# Houdini caches and outputs (too large for GitHub)
+geo/
+sim/
+flip/
+render/
+*.bgeo
+*.bgeo.sc
+*.vdb
